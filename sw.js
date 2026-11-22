@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lunia-ios-pwa-v3';
+const CACHE_NAME = 'lunia-ios-pwa-v5';
 const PRECACHE = [
   "./",
   "./index.html",
@@ -42,7 +42,25 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
-  );
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  const isCode = url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+  if (isCode) {
+    event.respondWith(
+      fetch(req).then((res) => {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+        return res;
+      }).catch(() => caches.match(req))
+    );
+  } else {
+    event.respondWith(
+      caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+        return res;
+      }))
+    );
+  }
 });

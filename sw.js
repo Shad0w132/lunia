@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lunia-ios-pwa-v2';
+const CACHE_NAME = 'lunia-ios-pwa-v3';
 const PRECACHE = [
   "./",
   "./index.html",

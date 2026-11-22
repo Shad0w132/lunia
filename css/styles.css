@@ -48,12 +48,38 @@ html, body {
   font-size: 15px; line-height: 1.45; overscroll-behavior-y: none; min-height: 100dvh;
 }
 
-.app-shell {
-  max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column;
-  padding-top: var(--safe-top); padding-bottom: calc(82px + var(--safe-bottom));
+/* Keyframe Animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sheetIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ringPop {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulseBurst {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* Header matching screenshots */
+.app-shell {
+  max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column;
+  padding-top: var(--safe-top); padding-bottom: calc(84px + var(--safe-bottom));
+}
+
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 18px 8px; gap: 10px;
@@ -65,17 +91,21 @@ html, body {
   width: 38px; height: 38px; border-radius: 50%; border: none;
   background: var(--surface-variant); color: var(--text);
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: transform 0.14s ease, background 0.15s ease;
 }
+.icon-circle-btn:active { transform: scale(0.9); }
 .icon-circle-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .main-content { flex: 1; padding: 4px 16px 24px; }
+.view-animate { animation: fadeSlideUp 0.24s cubic-bezier(.2,.8,.2,1); }
 
 /* Cards */
 .card {
   background: var(--surface); border: 1px solid var(--outline);
   border-radius: 22px; padding: 16px 18px; margin-bottom: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.card.flat { border: none; box-shadow: 0 2px 10px rgba(42, 31, 39, 0.04); }
+.card.flat { border: none; box-shadow: 0 2px 12px rgba(42, 31, 39, 0.045); }
 .card.rose { background: var(--period-container); border: none; color: var(--text); }
 .card.cream { background: var(--mood-container); border: none; color: var(--on-mood-container); }
 .card.warn { border-color: var(--warning); background: var(--mood-container); color: var(--on-mood-container); }
@@ -90,9 +120,10 @@ html, body {
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   border: none; border-radius: 999px; padding: 12px 20px; font-family: inherit;
-  font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.1s ease, opacity 0.15s ease;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: transform 0.14s cubic-bezier(.2,.8,.2,1), opacity 0.15s ease, background 0.18s ease;
 }
-.btn:active { transform: scale(0.97); }
+.btn:active { transform: scale(0.95); }
 .btn-primary { background: var(--brand); color: var(--on-brand); }
 .btn-period { background: var(--period); color: var(--on-period); }
 .btn-soft { background: var(--surface-variant); color: var(--text); border: 1px solid var(--outline); }
@@ -104,49 +135,95 @@ html, body {
   background: none; border: none; padding: 4px 2px; font-family: inherit;
   font-size: 13px; font-weight: 700; color: var(--text-secondary);
   display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  transition: opacity 0.15s ease;
 }
+.text-link-btn:active { opacity: 0.6; }
 .text-link-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-/* Week strip matching screenshots */
-.week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 10px; }
+/* Clean Mon–Sun Week Strip */
+.week-strip {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  margin-bottom: 10px; padding: 4px 2px;
+}
 .week-day {
   display: flex; flex-direction: column; align-items: center; padding: 4px 0;
   cursor: pointer; background: transparent; border: none; color: inherit;
+  border-radius: 14px; transition: transform 0.12s ease;
 }
-.week-day .wd-name { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 5px; }
-.week-day.today .wd-name { color: var(--text); font-weight: 800; }
+.week-day:active { transform: scale(0.92); }
+.week-day .wd-name {
+  font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 5px;
+}
+.week-day.is-today .wd-name { color: var(--brand); font-weight: 800; }
 .week-day .wd-num {
   width: 36px; height: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 14px; border: 1.5px solid transparent;
+  font-weight: 700; font-size: 14px; position: relative;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
-.wd-fertile .wd-num { background: var(--fertile); color: var(--on-fertile); }
-.wd-ovulation .wd-num { background: var(--ovulation); color: var(--on-ovulation); font-weight: 800; }
-.wd-period .wd-num { background: var(--period); color: var(--on-period); }
-.wd-predicted .wd-num { border: 1.5px dashed var(--period); color: var(--period); }
-.week-day.today:not(.wd-period):not(.wd-ovulation) .wd-num { background: var(--brand); color: var(--on-brand); }
-.week-day.today.wd-fertile .wd-num { background: var(--fertile); color: var(--on-fertile); border: 2px solid var(--on-fertile); }
-.wd-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text); margin-top: 3px; opacity: 0.7; }
+.week-day.wd-period .wd-num { background: var(--period); color: var(--on-period); }
+.week-day.wd-predicted .wd-num { background: var(--period-container); color: var(--on-period-container); border: 1.5px dashed var(--period); }
+.week-day.wd-fertile .wd-num { background: var(--fertile); color: var(--on-fertile); }
+.week-day.wd-ovulation .wd-num { background: var(--ovulation); color: var(--on-ovulation); font-weight: 800; }
+.week-day.is-selected .wd-num {
+  box-shadow: 0 0 0 2.5px var(--bg), 0 0 0 4.5px var(--brand);
+  transform: scale(1.06);
+}
+.week-day.is-today:not(.wd-period):not(.wd-ovulation):not(.wd-fertile):not(.wd-predicted) .wd-num {
+  background: var(--surface-variant); color: var(--text); font-weight: 800;
+}
+.wd-indicators {
+  height: 7px; display: flex; align-items: center; justify-content: center; gap: 3px; margin-top: 4px;
+}
+.wd-dot { width: 4.5px; height: 4.5px; border-radius: 50%; background: var(--brand); opacity: 0.75; }
+.wd-today-bar { width: 12px; height: 2.5px; border-radius: 99px; background: var(--brand); }
 
-/* Hero Ring Section (borderless on background, matching screenshots) */
+/* Interactive Draggable Ring Hero */
 .ring-hero {
   display: flex; flex-direction: column; align-items: center;
   padding: 2px 0 14px;
 }
-.ring-svg { width: 256px; height: 256px; display: block; overflow: visible; }
+.ring-stage {
+  position: relative; width: 268px; height: 268px;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  cursor: grab;
+}
+.ring-stage.dragging { cursor: grabbing; }
+.ring-svg {
+  width: 268px; height: 268px; display: block; overflow: visible;
+  animation: ringPop 0.36s cubic-bezier(.2,.8,.2,1);
+}
+.ring-svg.no-anim { animation: none; }
+.ring-svg.burst { animation: pulseBurst 0.35s ease; }
+.ring-marker {
+  transition: r 0.14s ease;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.18));
+}
+.ring-stage.dragging .ring-marker { r: 13; }
+.ring-hint {
+  font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; opacity: 0.85;
+}
+.back-today-pill {
+  margin-top: 8px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--outline);
+  background: var(--surface); color: var(--brand); font-family: inherit;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+  animation: fadeSlideUp 0.2s ease;
+}
+
 .chance-pill {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
-  margin-top: 8px;
+  margin-top: 8px; transition: background 0.2s ease, color 0.2s ease;
 }
 .chance-pill.high, .chance-pill.medium { background: var(--fertile); color: var(--on-fertile); }
 .chance-pill.low { background: var(--neutral-container); color: var(--on-neutral-container); }
 .hero-cta {
-  margin-top: 12px; min-width: 204px; padding: 13px 26px; font-size: 15px;
+  margin-top: 12px; min-width: 212px; padding: 13px 26px; font-size: 15px;
   box-shadow: 0 4px 14px rgba(210, 63, 88, 0.22);
 }
 
-/* Circular Stories Strip matching screenshots */
+/* Circular Stories Strip */
 .stories-row {
   display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 12px; margin-bottom: 4px;
   scrollbar-width: none;
@@ -154,8 +231,9 @@ html, body {
 .stories-row::-webkit-scrollbar { display: none; }
 .story-bubble {
   flex: 0 0 70px; display: flex; flex-direction: column; align-items: center;
-  cursor: pointer; text-align: center;
+  cursor: pointer; text-align: center; transition: transform 0.14s ease;
 }
+.story-bubble:active { transform: scale(0.92); }
 .story-ring {
   width: 58px; height: 58px; border-radius: 50%; padding: 3px;
   border: 2px solid var(--outline); display: flex; align-items: center; justify-content: center;
@@ -184,48 +262,76 @@ html, body {
   color: var(--text); max-width: 68px; word-break: break-word;
 }
 
-/* Summary card footer links */
 .card-links {
   display: flex; align-items: center; gap: 16px; margin-top: 12px;
   padding-top: 10px; border-top: 1px solid var(--outline);
 }
 
-/* Calendar */
-.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.cal-wd { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-secondary); padding-bottom: 4px; }
-.cal-cell {
-  aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
-  cursor: pointer; position: relative; border: 1.5px solid transparent; user-select: none;
+/* Polished Calendar */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; gap: 8px;
 }
-.cal-cell.empty { cursor: default; }
-.cal-cell.today { border-color: var(--brand); font-weight: 800; }
-.cal-cell.period { background: var(--period); color: var(--on-period); }
-.cal-cell.spotting { background: var(--period-container); color: var(--on-period-container); border: 1.5px dotted var(--period); }
-.cal-cell.predicted { border: 1.5px dashed var(--period); color: var(--period); }
-.cal-cell.fertile { background: var(--fertile); color: var(--on-fertile); }
-.cal-cell.ovulation { background: var(--ovulation); color: var(--on-ovulation); font-weight: 800; }
-.cal-cell.edit-selected { background: var(--period); color: var(--on-period); box-shadow: 0 0 0 2px var(--brand); }
-.cal-cell .has-log { width: 5px; height: 5px; border-radius: 50%; background: currentColor; position: absolute; bottom: 4px; opacity: 0.85; }
-.cal-legend { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 14px; font-size: 12px; color: var(--text-secondary); }
+.cal-month-title { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px 4px;
+  animation: fadeSlideUp 0.2s ease;
+}
+.cal-wd {
+  text-align: center; font-size: 11.5px; font-weight: 700;
+  color: var(--text-secondary); padding-bottom: 6px;
+}
+.cal-cell-wrap {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 2px 0; cursor: pointer; user-select: none;
+  transition: transform 0.12s ease;
+}
+.cal-cell-wrap:active { transform: scale(0.9); }
+.cal-cell-wrap.empty { cursor: default; pointer-events: none; }
+.cal-num {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; border: 1.5px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.cal-cell-wrap.today .cal-num {
+  box-shadow: inset 0 0 0 2px var(--brand); font-weight: 800;
+}
+.cal-cell-wrap.period .cal-num { background: var(--period); color: var(--on-period); font-weight: 700; }
+.cal-cell-wrap.spotting .cal-num { background: var(--period-container); color: var(--on-period-container); border: 1.5px dotted var(--period); }
+.cal-cell-wrap.predicted .cal-num { background: var(--period-container); color: var(--on-period-container); border: 1.5px dashed var(--period); }
+.cal-cell-wrap.fertile .cal-num { background: var(--fertile); color: var(--on-fertile); }
+.cal-cell-wrap.ovulation .cal-num { background: var(--ovulation); color: var(--on-ovulation); font-weight: 800; }
+.cal-cell-wrap.edit-selected .cal-num {
+  background: var(--period); color: var(--on-period);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--period);
+}
+.cal-dot-row { height: 6px; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.cal-log-dot { width: 4.5px; height: 4.5px; border-radius: 50%; background: var(--brand); opacity: 0.7; }
+
+.cal-legend {
+  display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 16px;
+  padding-top: 12px; border-top: 1px solid var(--outline);
+  font-size: 12px; color: var(--text-secondary);
+}
 .legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.legend-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
 
 /* Chips */
 .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
 .chip {
   padding: 7px 12px; border-radius: 999px; background: var(--surface-variant);
   border: 1px solid var(--outline); color: var(--text); font-size: 13px; font-weight: 600;
-  cursor: pointer; user-select: none;
+  cursor: pointer; user-select: none; transition: transform 0.1s ease, background 0.15s ease;
 }
+.chip:active { transform: scale(0.94); }
 .chip.active { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
 .chip.active.t-period { background: var(--period); color: var(--on-period); border-color: var(--period); }
 .chip.active.t-mood { background: var(--mood-container); color: var(--on-mood-container); border-color: var(--on-mood-container); }
 .chip.active.t-discharge { background: var(--fertile); color: var(--on-fertile); border-color: var(--on-fertile); }
 .chip.active.t-symptom { background: var(--luteal-container); color: var(--on-luteal-container); border-color: var(--luteal); }
 
-/* Bottom Tab Bar with Central Crimson '+' FAB (exact match to screenshots) */
+/* Bottom Tab Bar with Central Crimson '+' FAB */
 .tabbar {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 480px;
   background: var(--surface); border-top: 1px solid var(--outline);
@@ -239,10 +345,8 @@ html, body {
 }
 .tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .tab-btn.active { color: var(--text); }
-.tab-btn.active .tab-icon-wrap {
-  background: var(--surface-variant); padding: 4px 12px; border-radius: 999px; display: flex;
-}
-.tab-icon-wrap { padding: 4px 12px; border-radius: 999px; display: flex; }
+.tab-icon-wrap { padding: 4px 12px; border-radius: 999px; display: flex; transition: background 0.18s ease; }
+.tab-btn.active .tab-icon-wrap { background: var(--surface-variant); }
 
 .fab-add {
   width: 52px; height: 52px; border-radius: 50%; border: none;
@@ -250,67 +354,59 @@ html, body {
   display: flex; align-items: center; justify-content: center;
   margin: -10px auto 0; cursor: pointer;
   box-shadow: 0 5px 16px rgba(210, 63, 88, 0.34);
-  transition: transform 0.12s ease;
+  transition: transform 0.14s cubic-bezier(.2,.8,.2,1);
 }
-.fab-add:active { transform: scale(0.93); }
+.fab-add:active { transform: scale(0.9); }
 .fab-add svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
 
-/* Bottom Sheets & Modals (matching screenshots 4 & 5) */
+/* Animated Bottom Sheets & Modals */
 .modal-backdrop {
   position: fixed; inset: 0; background: rgba(24, 16, 22, 0.48);
   display: flex; align-items: flex-end; justify-content: center; z-index: 100;
+  animation: backdropIn 0.18s ease;
 }
 .modal-sheet {
   width: 100%; max-width: 480px; max-height: 92dvh; background: var(--surface);
   border-radius: 26px 26px 0 0; padding: 10px 18px calc(24px + var(--safe-bottom)); overflow-y: auto;
+  animation: sheetIn 0.26s cubic-bezier(.2,.85,.25,1);
 }
 .modal-sheet.bg-warm { background: var(--bg); }
-.sheet-handle {
-  width: 38px; height: 4px; border-radius: 99px; background: var(--outline);
-  margin: 2px auto 14px;
-}
+.sheet-handle { width: 38px; height: 4px; border-radius: 99px; background: var(--outline); margin: 2px auto 14px; }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
   position: sticky; top: -10px; background: inherit; padding: 6px 0 10px; z-index: 2; gap: 8px;
 }
 .modal-header h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
 
-/* Date Picker Grid for "Когда был последний день?" (Screen 4) */
-.day-pick-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 18px;
-}
+.day-pick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0 18px; }
 .day-pick-btn {
   padding: 11px 6px; border-radius: 14px; border: 1px solid var(--outline);
   background: var(--bg); color: var(--text); text-align: center; cursor: pointer;
-  font-family: inherit; transition: all 0.12s ease;
+  font-family: inherit; transition: all 0.14s ease;
 }
+.day-pick-btn:active { transform: scale(0.95); }
 .day-pick-btn .dp-date { display: block; font-size: 13.5px; font-weight: 700; }
 .day-pick-btn .dp-sub { display: block; font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-.day-pick-btn.selected {
-  background: var(--period); border-color: var(--period); color: var(--on-period);
-}
+.day-pick-btn.selected { background: var(--period); border-color: var(--period); color: var(--on-period); }
 .day-pick-btn.selected .dp-sub { color: rgba(255,255,255,0.88); }
 
-/* Forecast Diff blocks (Screen 5) */
 .diff-block { margin: 12px 0; }
 .diff-lbl { font-size: 12.5px; color: var(--text-secondary); font-weight: 600; }
 .diff-val { font-size: 16px; font-weight: 800; margin-top: 2px; }
 .diff-delta { font-size: 12.5px; color: var(--text-secondary); margin-top: 1px; }
 
-/* Fullscreen Story Overlay */
 .story-viewer {
   position: fixed; inset: 0; background: #1B131C; color: #FBF6F2; z-index: 200;
   display: flex; flex-direction: column; padding: calc(16px + var(--safe-top)) 20px calc(24px + var(--safe-bottom));
-  max-width: 480px; margin: 0 auto;
+  max-width: 480px; margin: 0 auto; animation: backdropIn 0.2s ease;
 }
 .story-bars { display: flex; gap: 4px; margin-bottom: 16px; }
 .story-bar { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.25); }
 .story-bar.done { background: #FF7088; }
-.story-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.story-body { flex: 1; display: flex; flex-direction: column; justify-content: center; animation: fadeSlideUp 0.22s ease; }
 .story-body h2 { font-size: 24px; margin: 0 0 12px; }
 .story-body p { font-size: 16px; line-height: 1.55; color: #E8DCE4; }
 
-/* Inputs, stats, charts */
 .input, select, textarea {
   width: 100%; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--outline);
   background: var(--surface); color: var(--text); font-family: inherit; font-size: 14px;
@@ -324,7 +420,7 @@ textarea { min-height: 76px; resize: vertical; }
 .stat-lbl { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
 .bar-track { flex: 1; height: 12px; background: var(--track); border-radius: 999px; overflow: hidden; }
-.bar-fill { height: 100%; background: var(--period); border-radius: 999px; }
+.bar-fill { height: 100%; background: var(--period); border-radius: 999px; transition: width 0.35s ease; }
 .chart-svg { width: 100%; height: 160px; display: block; }
 .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; cursor: pointer; font-size: 14px; }
 .check-item input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--brand); }
@@ -344,18 +440,21 @@ textarea { min-height: 76px; resize: vertical; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
 }
 .pin-dots { display: flex; gap: 14px; margin: 20px 0 28px; }
-.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--brand); }
+.pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--brand); transition: background 0.14s ease; }
 .pin-dot.filled { background: var(--brand); }
 .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
 .pin-key {
   width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--outline);
   background: var(--surface); color: var(--text); font-size: 22px; font-weight: 700; cursor: pointer;
+  transition: transform 0.1s ease;
 }
+.pin-key:active { transform: scale(0.9); }
 
 .toast {
   position: fixed; bottom: calc(88px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
   background: var(--brand); color: var(--on-brand); padding: 10px 18px; border-radius: 999px;
   font-size: 13px; font-weight: 700; z-index: 250; box-shadow: 0 6px 20px rgba(0,0,0,0.22);
+  animation: toastIn 0.22s ease;
 }
 
 @media print {

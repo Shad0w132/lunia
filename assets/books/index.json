@@ -1,0 +1,32 @@
+[
+  {
+    "id": "01-cycle",
+    "file": "assets/books/01-cycle.md",
+    "title": "Как устроен цикл"
+  },
+  {
+    "id": "02-periods",
+    "file": "assets/books/02-periods.md",
+    "title": "Месячные: что нормально, а что нет"
+  },
+  {
+    "id": "03-hormones",
+    "file": "assets/books/03-hormones.md",
+    "title": "Гормоны и настроение"
+  },
+  {
+    "id": "04-contraception",
+    "file": "assets/books/04-contraception.md",
+    "title": "Контрацепция без мифов"
+  },
+  {
+    "id": "05-pregnancy-planning",
+    "file": "assets/books/05-pregnancy-planning.md",
+    "title": "Планирование беременности"
+  },
+  {
+    "id": "06-interesting",
+    "file": "assets/books/06-interesting.md",
+    "title": "Интересное о женском здоровье"
+  }
+]
